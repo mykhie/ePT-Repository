@@ -89,4 +89,82 @@ class Reports_RepositoryController extends Zend_Controller_Action
 
         exit;
     }
+
+    public function labsAction()
+    {
+
+        $where['dateRange'] = @$_POST['dateRange'];
+
+
+        $dates = explode(" - ", @$_POST['dateRange']);
+        $columns = array();
+        $records = array();
+        if (!empty($_POST)) {
+
+            foreach ($_POST as $key => $value) {
+                if ($key == 'ProviderID') {
+                    array_push($columns, $key);
+                    array_push($records, $value);
+                }
+            }
+        }
+
+
+        if (!class_exists('database\core\mysql\DatabaseUtils')) {
+            require_once 'C:\xampp\htdocs\ePT-Repository\database\core-apis\DatabaseUtils.php';
+        }
+        if (!class_exists('database\crud\SystemAdmin')) {
+            require_once 'C:\xampp\htdocs\ePT-Repository\database\crud\SystemAdmin.php';
+        }
+        if (!class_exists('database\crud\RepRepository')) {
+            require_once 'C:\xampp\htdocs\ePT-Repository\database\crud\RepRepository.php';
+        }
+
+        $databaseUtils = new \database\core\mysql\DatabaseUtils();
+        $repRepository = new \database\crud\RepRepository($databaseUtils);
+        $repositoryData = $repRepository->query_from_rep_repository(array(), array());
+
+        $programs = array();
+        $providerPrograms = array();
+        $index = 0;
+        foreach ($repositoryData as $data) {
+
+            $programName = $data['ProgramID'];
+            $labName = $data['LabID'];
+
+            if (!in_array($programName, $programs)) {
+                array_push($programs, $programName);
+            }
+            $labCount = $repRepository->is_exists(array("ProgramID", "LabID"), array($programName, $labName));
+            $labData = array("lab-name" => $labName, "lab-count" => $labCount);
+            $programData = array("program" => $programName, "lab-data" => $labData);
+
+            if ($this->isLabDataAdded($labData, $providerPrograms)) {
+                echo "Found " . $index . "<br />";
+            } else
+                echo "Not Found " . $index . "<br />";
+
+            $index++;
+            array_push($providerPrograms, $programData);
+        }
+        echo json_encode($providerPrograms);
+
+        exit;
+    }
+
+    public function isLabDataAdded($labData, $providerPrograms)
+    {
+        $isExists = false;
+
+        foreach ($providerPrograms as $providerProgram) {
+            $data = $providerProgram['lab-data'];
+            $dataLabName = $data['lab-name'];
+            $dataLabCount = $data['lab-count'];
+
+            if ($labData === $data) {
+                $isExists = true;
+            }
+        }
+        return $isExists;
+    }
 }
