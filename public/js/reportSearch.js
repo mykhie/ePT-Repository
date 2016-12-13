@@ -19,7 +19,7 @@ ReportModule.controller("ReportController", function ($scope, $rootScope, $timeo
         searchColumns.provider = angular.isDefined($("#provider").val()) ? $("#dateRange").val() : null;
 //        console.log(searchColumns);
         $.ajax({
-            url: "http://localhost:8082/reports/repository/test",
+            url: "http://localhost:8081/reports/repository/test",
             data: {
                 dateRange: $("#dateRange").val(),
                 reportType: $("#reportType").val(),
