@@ -1,17 +1,20 @@
 <?php
 
-class Reports_RepositoryController extends Zend_Controller_Action {
+class Reports_RepositoryController extends Zend_Controller_Action
+{
 
-    public function init() {
+    public function init()
+    {
         /* Initialize action controller here */
         $ajaxContext = $this->_helper->getHelper('AjaxContext');
         $ajaxContext->addActionContext('index', 'html')
-                ->addActionContext('report', 'html')
-                ->initContext();
+            ->addActionContext('report', 'html')
+            ->initContext();
         $this->_helper->layout()->pageName = 'report';
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         if ($this->getRequest()->isPost()) {
             $params = $this->_getAllParams();
             $reportService = new Application_Service_Reports();
@@ -23,7 +26,8 @@ class Reports_RepositoryController extends Zend_Controller_Action {
         $this->view->providers = $provider->getProviders();
     }
 
-    public function reportAction() {
+    public function reportAction()
+    {
         if ($this->getRequest()->isPost()) {
             $params = $this->_getAllParams();
             $reportService = new Application_Service_Importcsv();
@@ -31,12 +35,13 @@ class Reports_RepositoryController extends Zend_Controller_Action {
         }
     }
 
-    public function testAction() {
+    public function programsAction()
+    {
 
-        $where['dateRange'] = $_POST['dateRange'];
+        $where['dateRange'] = @$_POST['dateRange'];
 
 
-        $dates = explode(" - ", $_POST['dateRange']);
+        $dates = explode(" - ", @$_POST['dateRange']);
         $columns = array();
         $records = array();
         if (!empty($_POST)) {
@@ -52,19 +57,36 @@ class Reports_RepositoryController extends Zend_Controller_Action {
 
         if (!class_exists('database\core\mysql\DatabaseUtils')) {
             require_once 'C:\xampp\htdocs\ePT-Repository\database\core-apis\DatabaseUtils.php';
-        } if (!class_exists('database\crud\SystemAdmin')) {
+        }
+        if (!class_exists('database\crud\SystemAdmin')) {
             require_once 'C:\xampp\htdocs\ePT-Repository\database\crud\SystemAdmin.php';
         }
-        $table = 'rep_repository';
-        $databaseUtils = new \database\core\mysql\DatabaseUtils();
-        $jsonData = json_encode($databaseUtils->query($table, array(), array()));
+        if (!class_exists('database\crud\RepRepository')) {
+            require_once 'C:\xampp\htdocs\ePT-Repository\database\crud\RepRepository.php';
+        }
 
-//        $sytemAdmin = new \database\crud\SystemAdmin($databaseUtils);
-//
-//         $jsonData = json_encode(($sytemAdmin->query_from_system_admin(array(),array())));
-//
-        echo $jsonData;
+        $databaseUtils = new \database\core\mysql\DatabaseUtils();
+        $repRepository = new \database\crud\RepRepository($databaseUtils);
+        $repositoryData = $repRepository->query_from_rep_repository(array(), array());
+
+        $providers = array();
+        $providerPrograms = array();
+
+        foreach ($repositoryData as $data) {
+            $providerName = $data['ProviderID'];
+            $programName = $data['ProgramID'];
+
+            if (!in_array($providerName, $providers)) {
+                array_push($providers, $providerName);
+                $programCount = $repRepository->is_exists(array("ProviderID", "ProgramID"), array($providerName, $programName));
+                $programData = array("program-name" => $programName, "program-count" => $programCount);
+                $providerData = array("provider" => $providerName, "program-data" => $programData);
+                array_push($providerPrograms, $providerData);
+            }
+
+        }
+        echo json_encode($providerPrograms);
+
         exit;
     }
-
 }
