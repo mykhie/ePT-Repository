@@ -1,7 +1,10 @@
 <?php
 
+require_once substr($_SERVER['CONTEXT_DOCUMENT_ROOT'], 0, stripos($_SERVER['CONTEXT_DOCUMENT_ROOT'], 'public'))
+    . 'Library' . DIRECTORY_SEPARATOR . 'tcpdf' . DIRECTORY_SEPARATOR . 'tcpdf.php';
+require_once 'pdfCreator.php';
 
-Class Main
+Class Main extends pdfCreator
 {
     protected $username = 'eptadmin';
     protected $password = 'rGQHv]LF*H6(';
@@ -21,9 +24,17 @@ Class Main
 
     }
 
+    public function returnFileImagePath($imageName)
+    {
+        return substr($_SERVER['CONTEXT_DOCUMENT_ROOT'], 0, stripos($_SERVER['CONTEXT_DOCUMENT_ROOT'], 'public'))
+            . 'Library' . DIRECTORY_SEPARATOR . 'tcpdf' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . $imageName;
+    }
+
+
     public function createInsertStatement($tableName, $dataArray)
     {
         $query['status'] = false;
+        $dataArray['createdBy'] = $this->getUserSession();
         try {
             $query = "insert into " . $tableName . " ( ";
             $counter = 0;
@@ -91,30 +102,49 @@ Class Main
         return ($error);
     }
 
-    public function returnWhereStatement($array)
+    public function deleteWhereCols($where, $table)
+    {
+
+    }
+
+    public function returnWhereStatement($array, $group = "", $tableName = "")
     {
 
         $where = ' where ';
         if (is_array($array)) {
-            $st = isset($array['status']) ? '=' . $array['status'] : '<' . '4 ';
+            $st = isset($array['status']) ? '=' . $array['status'] : '<' . '7 ';
 
 
             $counter = 0;
             foreach ($array as $key => $value) {
-
-                $where .= $key . "=" . " '$value' ";
-
+                if ($value === null) {
+                    $where .= $key . " is null ";
+                } else {
+                    $where .= $key . "=" . " '$value' ";
+                }
                 $counter++;
                 if ($counter < sizeof($array)) {
                     $where .= ' and ';
-
 
                 }
 
 
             }
-            $where .= " and status " . $st . ' ';
-            $where .= ' order by id desc';
+            if (!isset($array['status'])) {
+                $where .= " and status " . $st . ' ';
+            }
+
+            if ($group) {
+                if ($tableName == 'tbl_bac_panels_shipments' && $group == true) {
+                    $where .= ' group by shipmentId';
+                } else {
+                    $where .= "group by shipmentId,panelId";
+                }
+            }
+            if ($tableName == 'tbl_bac_ready_labs') {
+                $where .= " order by roundId desc";
+            }
+            //$where .= ' order by id desc';
             return $where;
 
         } else {
@@ -122,17 +152,20 @@ Class Main
         }
     }
 
-    public function selectFromTable($tableName, $where = "")
+    public function selectFromTable($tableName, $where = "", $group = "")
     {
 
         $sql = "SELECT * FROM $tableName";
         if (isset($where)) {
 
             if (is_array($where)) {
-                $sql .= $this->returnWhereStatement($where);
+                $sql .= $this->returnWhereStatement($where, $group, $tableName);
+
             }
         }
-        // echo $sql;exit;
+
+//        echo $sql;
+//        exit;
         $result = $this->connect_db->query($sql);
 
         if ($result->num_rows > 0) {
@@ -148,7 +181,144 @@ Class Main
 
     }
 
-    public function deleteFromWhere($tableName, $where)
+    public function returnReportsWhereStmnt($array, $orderBy, $group = '', $groupArray = '', $tableName = '')
+    {
+
+        $where = ' where ';
+        if (is_array($array)) {
+            $st = isset($array['status']) ? '=' . $array['status'] : '<' . '7 ';
+
+
+            $counter = 0;
+            foreach ($array as $key => $value) {
+                if ($value === null) {
+                    $key == 'dateTo' ? $where .= " dateCreated <= '" . date('Y-m-d', time()) . " 23:59' " : $where .= $key . " is null ";
+                } else {
+                    if ($key == 'dateFrom') {
+                        $where .= "dateCreated >=" . " '" . substr($value, 0, 10) . " 05:59:59'";
+                    } else if ($key == 'dateTo') {
+
+                        $where .= "dateCreated <=" . " '" . substr($value, 0, 10) . " 23:59:59'";
+
+                    } else {
+                        $where .= $key . "=" . " '$value' ";
+                    }
+                }
+                $counter++;
+                if ($counter < sizeof($array)) {
+                    $where .= ' and ';
+
+                }
+
+
+            }
+            if (!isset($array['status'])) {
+                $where .= " and status " . $st . ' ';
+            }
+            if ($group) {
+
+                $where .= ' group by ' . implode(',', $groupArray);
+
+            }
+
+            $where .= " order by " . implode(',', $orderBy) . " desc";
+
+//             $where .= ' order by id desc';
+            return $where;
+
+        }
+
+
+        return $where;
+
+    }
+
+    public function selectReportFromTable($tableName, $col, $where, $order, $group = '', $groupArray = '')
+    {
+
+        $sql = "SELECT " . implode(',', $col) . " FROM $tableName";
+        if (isset($where)) {
+
+            if (is_array($where)) {
+                $sql .= $this->returnReportsWhereStmnt($where, $order, $group, $groupArray, $tableName);
+
+            }
+        }
+//
+//        echo $sql;
+//        exit;
+        $result = $this->connect_db->query($sql);
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while ($row = $result->fetch_object()) {
+                $user_arr[] = $row;
+            }
+
+            return $user_arr;
+        } else {
+            return false;
+        }
+
+    }
+
+    public function selectCount($tableName, $where, $col, $sum = '')
+    {
+
+        if ($sum) {
+            $sql = "SELECT sum($col) FROM $tableName";
+        } else {
+            $sql = "SELECT count($col) FROM $tableName";
+        }
+        if (is_array($where)) {
+
+            $sql .= $this->returnWhereStatement($where);
+
+        } else {
+            $sql .= " where " . $col . " = " . $where;
+        }
+        if ($tableName == 'tbl_bac_response_results') {
+//            echo $sql;
+//            exit;
+        }
+        try {
+            $result = $this->connect_db->query($sql)->fetch_array(MYSQLI_NUM)[0];
+            return ($result);//->num_rows;
+        } catch (Exception $e) {
+            return 'error';
+        }
+
+
+        // output data of each row
+
+
+    }
+
+
+    function selectFromDStatusTable($tableName, $where = "")
+    {
+        $col = $where['column'];
+        $status = $where['status'];
+        $sql = "SELECT * FROM $tableName where $col in ($status)";
+
+        $result = $this->connect_db->query($sql);
+
+        if ($result->num_rows > 0) {
+            // output data of each row
+            while ($row = $result->fetch_object()) {
+                $user_arr[] = $row;
+            }
+
+            return $user_arr;
+        } else {
+            return false;
+        }
+
+    }
+
+
+    public
+    function deleteFromWhere($tableName, $where)
     {
         $error['status'] = 0;
         try {
@@ -164,6 +334,8 @@ Class Main
                     }
                 }
                 if (is_string($sql)) {
+//                    echo $sql;
+//                    exit;
                     $result = $this->connect_db->query($sql);
 
                     if ($result) {
@@ -182,7 +354,16 @@ Class Main
 
     }
 
-    public function updateTable($tableName, $where, $updateData)
+    public
+    function generataPile()
+    {
+
+
+    }
+
+
+    public
+    function updateTable($tableName, $where, $updateData)
     {
         try {
             $error['status'] = 0;
@@ -197,7 +378,8 @@ Class Main
                     $sql .= $this->returnWhereStatement($where);
                 }
                 if (is_string($sql)) {
-
+//                    echo $sql;
+//                    exit;
                     $result = $this->connect_db->query($sql);
 
                     if ($result) {
@@ -218,9 +400,12 @@ Class Main
 
     }
 
-    public function returnUpdateStatement($updateInfo)
+    public
+    function returnUpdateStatement($updateInfo)
     {
         try {
+            $updateInfo['lastUpdatePerson'] = $this->getUserSession();
+//            $updateInfo['updateDate'] = $this->getUserSession();
             $updateStatement = ' ';
             if (sizeof($updateInfo) > 0) {
                 $updateStatement .= ' set ';
@@ -247,6 +432,21 @@ Class Main
 
     }
 
+    public
+    function getUserSession()
+    {
+        if (isset($_SESSION)) {
+            return $_SESSION['administrators']['admin_id'];
+        } else {
+            return null;
+        }
+    }
+
+    public
+    function generatePanelLabels()
+    {
+
+    }
 }
 
 ?>

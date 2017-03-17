@@ -1,20 +1,24 @@
 <div class="col-md-12" ng-cloak="">
 
     <div class="col-md-8 col-md-offset-2">
-        <H3>Sample Preparation Form</H3>
-        <hr>
+        <H3>
+            <x ng-show="samples.sampleFormData.id > 0">Edit {{samples.sampleFormData.batchName}}</x>
+            <x ng-hide="samples.sampleFormData.id > 0">Add</x>
+            Sample
+        </H3>
+        <div id='alert' tabindex='1'></div>
         <div class="alert {{samples.feedbackObject.fbbgColor}}" ng-show="samples.feedbackObject.fbStatus">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
             <strong>Response : </strong> {{samples.feedbackObject.fbMessage}}
         </div>
-        <form name="sampleData" novalidate="" class="vertical">
-            <div class="form-group"
+
+        <form name="sampleData" novalidate="" class="form-horizontal ">
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.batchName.$invalid && !sampleData.batchName.$pristine }">
-                <div class="col-md-4">Batchy Name</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.batchName"
-                           name="batchName"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Batch Name</label>
+                <div class="col-10">
+                    <input class="form-control " required="" ng-model="samples.sampleFormData.batchName"
+                           name="batchName"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.batchName.$invalid && !sampleData.batchName.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -23,13 +27,12 @@
                 </div>
             </div>
 
-            <div class="form-group"
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.preparedBy.$invalid && !sampleData.preparedBy.$pristine }">
-                <div class="col-md-4">Prepared By</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.preparedBy"
-                           name="preparedBy"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Prepared By</label>
+                <div class="col-10">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.preparedBy"
+                           name="preparedBy"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.preparedBy.$invalid && !sampleData.preparedBy.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -37,13 +40,12 @@
 
                 </div>
             </div>
-            <div class="form-group"
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.materialType.$invalid && !sampleData.materialType.$pristine }">
-                <div class="col-md-4">Material Type</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.materialType"
-                           name="materialType"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Material Type</label>
+                <div class="col-10">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.materialType"
+                           name="materialType"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.materialType.$invalid && !sampleData.materialType.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -52,13 +54,12 @@
                 </div>
             </div>
 
-            <div class="form-group"
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.materialOrigin.$invalid && !sampleData.materialOrigin.$pristine }">
-                <div class="col-md-4">Material Origin</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.materialOrigin"
-                           name="materialOrigin"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Material Origin</label>
+                <div class="col-10">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.materialOrigin"
+                           name="materialOrigin"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.materialOrigin.$invalid && !sampleData.materialOrigin.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -66,13 +67,12 @@
 
                 </div>
             </div>
-            <div class="form-group" ng-if="samples.sampleFormData.materialOrigin!='NPHL'"
+            <div class="form-group row" ng-if="samples.sampleFormData.materialOrigin!='NPHL'"
                  ng-class="{ 'has-error'  : sampleData.originExtraInfo.$invalid && !sampleData.originExtraInfo.$pristine }">
-                <div class="col-md-4">Origin Info</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.originExtraInfo"
-                           name="originExtraInfo"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Origin Info</label>
+                <div class="col-">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.originExtraInfo"
+                           name="originExtraInfo"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.originExtraInfo.$invalid && !sampleData.originExtraInfo.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -80,13 +80,12 @@
 
                 </div>
             </div>
-            <div class="form-group"
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.lifespan.$invalid && !sampleData.lifespan.$pristine }">
-                <div class="col-md-4">Lifespan</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.lifespan"
-                           name="lifespan"
-                           ng-pattern='/^[0-9 ]*$/'>
+                <label class="col-2 col-form-label">Lifespan</label>
+                <div class="col-10">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.lifespan"
+                           name="lifespan"  ng-pattern="samples.numericOnly">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.lifespan.$invalid && !sampleData.lifespan.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -94,28 +93,31 @@
 
                 </div>
             </div>
-            <div class="form-group"
-                 ng-class="{ 'has-error'  : sampleData.bloodPackNo.$invalid && !sampleData.bloodPackNo.$pristine }">
-                <div class="col-md-4">Blood Pack No</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.bloodPackNo"
-                           name="bloodPackNo"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
-                    <small class="text-danger col-md-12"
-                           ng-show="sampleData.bloodPackNo.$invalid && !sampleData.bloodPackNo.$pristine">
-                        Error : Required & Only numbers,alphabets,hyphen and dashes allowed
-                    </small>
 
-                </div>
-            </div>
 
             <div class="form-group"
-                 ng-class="{ 'has-error'  : sampleData.dateCreated.$invalid && !sampleData.dateCreated.$pristine }">
-                <div class="col-md-4">Date Prepared</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.dateCreated"
-                           name="dateCreated"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                 ng-class="{ 'has-error'  : sampleData.datePrepared.$invalid && !sampleData.datePrepared.$pristine }">
+                <label class="col-2 col-form-label">Date Prepared</label>
+                <div class="col-10">
+                    <div class="col-10">
+
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon2"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control" ng-model="samples.sampleFormData.datePrepared"
+                                   data-date-format="yyyy-MM-dd" required=""
+                                   data-min-date="today" data-max-date=""
+                                   data-autoclose="1" aria-describedby="basic-addon2"
+                                   name="datePrepared"
+                                   bs-datepicker>
+                        </div>
+                        <small class="text-danger col-md-12"
+                               ng-show="sampleData.datePrepared.$invalid && !sampleData.datePrepared.$pristine">
+                            Error : please check you date format : e.g 2016-10-22/yyyy-MM-DD
+                        </small>
+
+
+                    </div>
+
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.dateCreated.$invalid && !sampleData.dateCreated.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -124,13 +126,12 @@
                 </div>
             </div>
 
-            <div class="form-group"
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.preparedAt.$invalid && !sampleData.preparedAt.$pristine }">
-                <div class="col-md-4">Prepared At</div>
-                <div class="col-md-8">
-                    <input class="form-control col-md-12" required="" ng-model="samples.sampleFormData.preparedAt"
-                           name="preparedAt"
-                           ng-pattern="samples.alphaNumHyDashRegExp">
+                <label class="col-2 col-form-label">Prepared At</label>
+                <div class="col-10">
+                    <input class="form-control" required="" ng-model="samples.sampleFormData.preparedAt"
+                           name="preparedAt"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
                     <small class="text-danger col-md-12"
                            ng-show="sampleData.preparedAt.$invalid && !sampleData.preparedAt.$pristine">
                         Error : Required & Only numbers,alphabets,hyphen and dashes allowed
@@ -138,12 +139,44 @@
 
                 </div>
             </div>
+            <div class="form-group row"
+                 ng-class="{ 'has-error'  : sampleData.materialSource.$invalid && !sampleData.materialSource.$pristine }">
+                <label class="col-2 col-form-label">Material Source</label>
+                <div class="col-10">
+                    <select required="" class="form-control" ng-model="samples.sampleFormData.materialSource"
+                            name="materialSource">
+                        <option value="standard organisms">standard organisms</option>
+                        <option value="sample isolates">sample isolates</option>
+                    </select>
+                    <small class="text-danger col-md-12"
+                           ng-show="sampleData.materialSource.$invalid && !sampleData.materialSource.$pristine">
+                        Error : Required & Only numbers,alphabets,hyphen and dashes allowed
+                    </small>
 
-            <div class="form-group"
+                </div>
+            </div>
+            <div class="form-group row"
+                 ng-class="{ 'has-error'  : sampleData.sampleType.$invalid && !sampleData.sampleType.$pristine }">
+                <label class="col-2 col-form-label">Sample Type</label>
+                <div class="col-10">
+                    <select required="" class="form-control" ng-model="samples.sampleFormData.sampleType"
+                            name="sampleType">
+                        <option value="1">ID</option>
+                        <option value="2">Gram Stain</option>
+                        <option value="3">AST</option>
+                    </select>
+                    <small class="text-danger col-md-12"
+                           ng-show="sampleData.sampleType.$invalid && !sampleData.sampleType.$pristine">
+                        Error : Required & Only numbers,alphabets,hyphen and dashes allowed
+                    </small>
+
+                </div>
+            </div>
+            <div class="form-group row"
                  ng-class="{ 'has-error'  : sampleData.dispatchable.$invalid && !sampleData.dispatchable.$pristine }">
-                <div class="col-md-4">Collectable</div>
-                <div class="col-md-8">
-                    <select required="" class="form-control col-md-12" ng-model="samples.sampleFormData.dispatchable"
+                <label class="col-2 col-form-label">Collectable</label>
+                <div class="col-10">
+                    <select required="" class="form-control" ng-model="samples.sampleFormData.dispatchable"
                             name="dispatchable">
                         <option value="1">--YES--</option>
                         <option value="0">--NO--</option>
@@ -155,16 +188,59 @@
 
                 </div>
             </div>
+
+            <div class="form-group row"
+                 ng-class="{ 'has-error'  : sampleData.sampleDetails.$invalid && !sampleData.sampleDetails.$pristine }">
+                <label class="col-2 col-form-label">Sample Details</label>
+                <div class="col-10">
+                    <textarea class="form-control" required="" ng-model="samples.sampleFormData.sampleDetails"
+                              name="sampleDetails"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
+
+                    </textarea>
+                    <small class="text-danger col-md-12"
+                           ng-show="sampleData.sampleDetails.$invalid && !sampleData.sampleDetails.$pristine">
+                        Error : Required & Only numbers,alphabets,hyphen and dashes allowed
+                    </small>
+
+                </div>
+            </div>
+            <div class="form-group row"
+                 ng-class="{ 'has-error'  : sampleData.sampleInstructions.$invalid && !sampleData.sampleInstructions.$pristine }">
+                <label class="col-2 col-form-label">Sample Instructions</label>
+                <div class="col-10">
+                    <textarea class="form-control" required="" ng-model="samples.sampleFormData.sampleInstructions"
+                              name="sampleInstructions"  ng-pattern="samples.alphaNumHyDashSpaceRegExp">
+
+                    </textarea>
+                    <small class="text-danger col-md-12"
+                           ng-show="sampleData.sampleInstructions.$invalid && !sampleData.sampleInstructions.$pristine">
+                        Error : Required & Only numbers,alphabets,hyphen and dashes allowed
+                    </small>
+
+                </div>
+            </div>
+
             <div class="clearfix">&nbsp;</div>
             <div class="form-group"
                  ng-class="{ 'has-error'  : sampleData.dispatchable.$invalid && !sampleData.dispatchable.$pristine }">
-                <div class="col-md-4"></div>
-                <div class="col-md-8">
+
+                <div class="col-10">
 
                     <button class="btn btn-primary col-md-12"
                             ng-click="samples.saveSampleFormData('tbl_bac_samples',samples.sampleFormData)"
-                            ng-disabled="sampleData.$invalid || samples.sampleSaveMonitor"
-                    >Save
+                            ng-disabled="sampleData.$invalid || samples.savingInProgress"
+                    >Save <i class="fa fa-spin {{samples.savingSpinner}}"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+
+                <div class="col-10">
+
+                    <button class="btn btn-danger col-md-12"
+                            ng-click="samples.emptyFormData('tbl_bac_samples',0)"
+                    >Cancel</i>
                     </button>
                 </div>
             </div>
